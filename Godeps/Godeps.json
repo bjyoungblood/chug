@@ -1,0 +1,51 @@
+{
+	"ImportPath": "github.com/bjyoungblood/chug",
+	"GoVersion": "go1.4.2",
+	"Packages": [
+		"./..."
+	],
+	"Deps": [
+		{
+			"ImportPath": "github.com/Sirupsen/logrus",
+			"Comment": "v0.8.5-1-g11538ee",
+			"Rev": "11538ee6888f72d4ab44a1aeba06b9bc4cb134a1"
+		},
+		{
+			"ImportPath": "github.com/alecthomas/template",
+			"Rev": "b867cc6ab45cece8143cfcc6fc9c77cf3f2c23c0"
+		},
+		{
+			"ImportPath": "github.com/alecthomas/units",
+			"Rev": "6b4e7dc5e3143b85ea77909c72caf89416fc2915"
+		},
+		{
+			"ImportPath": "github.com/google/go-github/github",
+			"Rev": "34fb8ee07214d23c3035c95691fe9069705814d6"
+		},
+		{
+			"ImportPath": "github.com/google/go-querystring/query",
+			"Rev": "547ef5ac979778feb2f760cdb5f4eae1a2207b86"
+		},
+		{
+			"ImportPath": "github.com/libgit2/git2go",
+			"Rev": "3d15c877d8d34c4268a7455bc60129681fa09100"
+		},
+		{
+			"ImportPath": "github.com/peterh/liner",
+			"Rev": "1bb0d1c1a25ed393d8feb09bab039b2b1b1fbced"
+		},
+		{
+			"ImportPath": "golang.org/x/net/context",
+			"Rev": "b71143c25f0aad5f54981684b715686d34c56d25"
+		},
+		{
+			"ImportPath": "golang.org/x/oauth2",
+			"Rev": "8914e5017ca260f2a3a1575b1e6868874050d95e"
+		},
+		{
+			"ImportPath": "gopkg.in/alecthomas/kingpin.v2",
+			"Comment": "v2.0.11",
+			"Rev": "3eb8ffbc54a2f5e806181081e23098b67fe06d06"
+		}
+	]
+}

@@ -8,13 +8,13 @@ import (
 	"strconv"
 	"strings"
 
-	"golang.org/x/oauth2"
-	"gopkg.in/alecthomas/kingpin.v2"
+	"github.com/bjyoungblood/chug/Godeps/_workspace/src/golang.org/x/oauth2"
+	"github.com/bjyoungblood/chug/Godeps/_workspace/src/gopkg.in/alecthomas/kingpin.v2"
 
-	"github.com/Sirupsen/logrus"
-	"github.com/google/go-github/github"
-	"github.com/libgit2/git2go"
-	"github.com/peterh/liner"
+	"github.com/bjyoungblood/chug/Godeps/_workspace/src/github.com/Sirupsen/logrus"
+	"github.com/bjyoungblood/chug/Godeps/_workspace/src/github.com/google/go-github/github"
+	"github.com/bjyoungblood/chug/Godeps/_workspace/src/github.com/libgit2/git2go"
+	"github.com/bjyoungblood/chug/Godeps/_workspace/src/github.com/peterh/liner"
 )
 
 const VERSION = "0.0.1"
