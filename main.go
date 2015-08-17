@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"net/url"
 	"os"
 	"regexp"
 	"sort"
@@ -17,17 +19,83 @@ import (
 	"github.com/bjyoungblood/chug/Godeps/_workspace/src/github.com/peterh/liner"
 )
 
-const VERSION = "0.0.1"
+const VERSION = "0.2.0"
 
 var issueMatcher = regexp.MustCompile(`#\d+`)
 
 var (
-	owner    = kingpin.Flag("owner", "Repository owner").Short('o').Required().String()
-	repoName = kingpin.Flag("repo", "Repository name").Short('r').Required().String()
+	owner    = kingpin.Flag("owner", "Repository owner").Short('o').String()
+	repoName = kingpin.Flag("repo", "Repository name").Short('r').String()
 	token    = kingpin.Flag("token", "Github API token").Short('t').Required().Default("").OverrideDefaultFromEnvar("GITHUB_API_TOKEN").String()
 
 	path = kingpin.Flag("path", "Path to local repo").Short('p').Default(".").String()
 )
+
+// SCP-like URL parsing from https://github.com/motemen/ghq/blob/master/url.go
+var hasSchemePattern = regexp.MustCompile("^[^:]+://")
+var scpLikeUrlPattern = regexp.MustCompile("^([^@]+@)?([^:]+):/?(.+)$")
+
+func parseUrl(ref string) (*url.URL, error) {
+	if !hasSchemePattern.MatchString(ref) && scpLikeUrlPattern.MatchString(ref) {
+		matched := scpLikeUrlPattern.FindStringSubmatch(ref)
+		user := matched[1]
+		host := matched[2]
+		path := matched[3]
+
+		ref = fmt.Sprintf("ssh://%s%s/%s", user, host, path)
+	}
+
+	url, err := url.Parse(ref)
+	if err != nil {
+		return url, err
+	}
+
+	if !url.IsAbs() {
+		if !strings.Contains(url.Path, "/") {
+			url.Path = url.Path + "/" + url.Path
+		}
+		url.Scheme = "https"
+		url.Host = "github.com"
+		if url.Path[0] != '/' {
+			url.Path = "/" + url.Path
+		}
+	}
+
+	return url, nil
+}
+
+func ConvertGitURLHTTPToSSH(url *url.URL) (*url.URL, error) {
+	sshURL := fmt.Sprintf("ssh://git@%s/%s", url.Host, url.Path)
+	return url.Parse(sshURL)
+}
+
+func checkRemotes(repo *git.Repository) error {
+	if owner != nil && *owner != "" && repoName != nil && *repoName != "" {
+		return nil
+	}
+
+	origin, err := repo.LookupRemote("origin")
+	if err != nil {
+		return err
+	}
+
+	defer origin.Free()
+
+	originUrl, err := parseUrl(origin.Url())
+	if err != nil {
+		return err
+	}
+
+	pathParts := strings.Split(originUrl.Path, "/")
+	if len(pathParts) != 3 {
+		return errors.New("Remote 'origin' doesn't appear to be a Github repository")
+	}
+
+	*owner = pathParts[1]
+	*repoName = strings.Replace(pathParts[2], ".git", "", -1)
+
+	return nil
+}
 
 func readRef(repo *git.Repository, line *liner.State, prompt string) (obj git.Object, err error) {
 	spec, err := line.Prompt(prompt)
@@ -139,6 +207,11 @@ func main() {
 	}
 
 	defer repo.Free()
+
+	if err := checkRemotes(repo); err != nil {
+		logrus.Error(err)
+		return
+	}
 
 	line := liner.NewLiner()
 	defer line.Close()
